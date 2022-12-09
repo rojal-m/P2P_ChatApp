@@ -12,6 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using P2P_Chat_App.ViewModels;
+
 
 namespace P2P_Chat_App
 {
@@ -20,9 +22,10 @@ namespace P2P_Chat_App
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
+        public MainWindow(MainViewModel mainViewModel)
         {
             InitializeComponent();
+            this.DataContext = mainViewModel;
         }
     }
 }
