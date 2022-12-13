@@ -18,7 +18,7 @@ namespace P2P_Chat_App
         private void Main(Object Sender, StartupEventArgs e)
         {
             MainWindow mainWindow = new MainWindow(new MainViewModel(new ConnectionHandler()));
-            mainWindow.Title = "Message Sender";
+            mainWindow.Title = "P2P Chat App";
             mainWindow.Show();
         }
     }

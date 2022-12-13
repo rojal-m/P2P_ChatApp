@@ -27,5 +27,14 @@ namespace P2P_Chat_App
             InitializeComponent();
             this.DataContext = mainViewModel;
         }
+        private void TextBox_CheckNum(object sender, TextCompositionEventArgs e)
+        {
+            // Check if the entered text is a numerical value
+            if (!double.TryParse(e.Text, out _))
+            {
+                // If the entered text is not a numerical value, cancel the event
+                e.Handled = true;
+            }
+        }
     }
 }

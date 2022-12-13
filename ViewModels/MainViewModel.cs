@@ -12,15 +12,16 @@ namespace P2P_Chat_App.ViewModels
     public class MainViewModel
     {
         private ConnectionHandler _connection;
-        private String _messageToSend;
+        private string _messageToSend;
         private ICommand _pushCommand;
+        private User _user;
 
         public ConnectionHandler Connection
         {
             get { return _connection; }
             set { _connection = value; }
         }
-        public String MessageToSend
+        public string MessageToSend
         {
             get { return _messageToSend; }
             set { _messageToSend = value; }
@@ -30,15 +31,22 @@ namespace P2P_Chat_App.ViewModels
             get { return _pushCommand; }
             set { _pushCommand = value; }
         }
+        public User User
+        {
+            get { return _user; }
+            set { _user = value; }
+        }
 
         public MainViewModel(ConnectionHandler connectionHandler)
         {
-            this.Connection = connectionHandler;
-            this.PushCommand = new SendMessageCommand(this);
-        }
+            Connection = connectionHandler;
+            User = Connection.User;
+            PushCommand = new SendMessageCommand(this);
+            MessageToSend = "Send a message";
+    }
         public void sendMessage()
         {
-            Connection.sendMessage(MessageToSend);
+            Connection.sendMessage(MessageToSend, _user.Name, _user.IP, _user.Port);
         }
     }
 }
