@@ -162,7 +162,7 @@
                     </Grid>
                 </Border>
 
-                <ListView ItemsSource="{Binding SelectedContact Messages}" 
+                <ListView ItemsSource="{Binding SelectedContactMessages}" 
                           Background="Transparent"
                           BorderThickness="0"
                           ItemContainerStyle="{StaticResource ChatItem}"
@@ -175,7 +175,7 @@
                         <ColumnDefinition Width="90"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Row="1"
+                    <TextBox Grid.Row="1"
                                Height="50"
                                Text="Message"
                                Style="{StaticResource MessageBox}"

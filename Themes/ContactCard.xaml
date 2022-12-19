@@ -27,7 +27,7 @@
                             <StackPanel>
                                 <Label Content="{Binding Username}"
                                        Foreground="white"/>
-                                <Label Content="{Binding Last Message}"
+                                <Label Content="{Binding LastMessage}"
                                        Foreground="Gray"
                                        FontSize="10"/>
                             </StackPanel>
