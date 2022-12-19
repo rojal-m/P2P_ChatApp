@@ -36,5 +36,42 @@ namespace P2P_Chat_App
                 e.Handled = true;
             }
         }
+
+        private void Border_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+                DragMove();
+        }
+
+        private void Minimize_Button(object sender, RoutedEventArgs e)
+        {
+            Application.Current.MainWindow.WindowState= WindowState.Minimized;
+        }
+
+        private void WindowState_Button(object sender, RoutedEventArgs e)
+        {
+            if(Application.Current.MainWindow.WindowState != WindowState.Maximized)
+            {
+                Application.Current.MainWindow.WindowState= WindowState.Maximized;
+            }
+            else
+                Application.Current.MainWindow.WindowState= WindowState.Normal;
+            
+        }
+
+        private void Close_Button(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
+
+        private void Connect_Button(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Disconnect_Button(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

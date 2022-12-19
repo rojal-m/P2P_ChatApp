@@ -4,6 +4,11 @@
              xmlns:local="clr-namespace:P2P_Chat_App"
              Startup="Main">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source=" ./Themes/ContactCard.xaml"/>
+                <ResourceDictionary Source=" ./Themes/ChatItem.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>
