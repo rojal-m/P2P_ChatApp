@@ -11,4 +11,9 @@
 	  <Folder Include="Assets\" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <PackageReference Include="C1.Xaml.WPF" Version="4.6.20223.777" />
+	  <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+	</ItemGroup>
+
 </Project>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -26,15 +27,17 @@ namespace P2P_Chat_App
         {
             InitializeComponent();
             this.DataContext = mainViewModel;
+            this.Closing += mainViewModel.closingWindow;
         }
         private void TextBox_CheckNum(object sender, TextCompositionEventArgs e)
         {
             // Check if the entered text is a numerical value
-            if (!double.TryParse(e.Text, out _))
+            if (!Regex.IsMatch(e.Text, @"^\d*\.?\d*$"))
             {
                 // If the entered text is not a numerical value, cancel the event
                 e.Handled = true;
             }
         }
+
     }
 }

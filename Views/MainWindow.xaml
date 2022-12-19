@@ -27,25 +27,23 @@
 
         <StackPanel  Margin="0,0,0,0" Grid.Column="1" Grid.Row="1"  VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal" Grid.ColumnSpan="2" >
             <Label >Username:</Label>
-            <TextBox x:Name="Username" Text="{Binding Path='User.Name', Mode=TwoWay, StringFormat=\{0:D5\}}" BorderThickness="2,1,1,1" Width="46" />
+            <TextBox x:Name="Username" Text="{Binding Path='User.Name', Mode=TwoWay,UpdateSourceTrigger=PropertyChanged, StringFormat=\{0:D5\}}" BorderThickness="2,1,1,1" Width="46" />
             <Label >IP Address:</Label>
-            <TextBox x:Name="userIP" Text="{Binding Path='User.IP', Mode=OneWay}" PreviewTextInput="TextBox_CheckNum"/>
+            <TextBox x:Name="userIP" Text="{Binding Path='User.IP', Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="TextBox_CheckNum"/>
             <Label >Port:</Label>
-            <TextBox x:Name="userPort" Text="{Binding Path=User.Port, Mode=TwoWay}" PreviewTextInput="TextBox_CheckNum"/>
+            <TextBox x:Name="userPort" Text="{Binding Path='User.Port', Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="TextBox_CheckNum"/>
             <Label >Friends IP ADDRESS:</Label>
             <TextBox x:Name="friendIP" Text="{Binding Path='Friend.IP', Mode=TwoWay}" PreviewTextInput="TextBox_CheckNum"/>
             <Label >Friend's Port:</Label>
-            <TextBox x:Name="friendPort" Text="{Binding Path=User{Name}, Mode=TwoWay}" PreviewTextInput="TextBox_CheckNum"/>
+            <TextBox x:Name="friendPort" Text="{Binding Path='Friend.Port', Mode=TwoWay}" PreviewTextInput="TextBox_CheckNum"/>
         </StackPanel>
 
-        <Button  Grid.Row="3" Grid.Column="1" Margin="20,34,174,34" BorderBrush="Black" BorderThickness="1">Connect</Button>
-        <Button  Grid.Row="3" Grid.Column="1" Margin="174,34,20,34" BorderBrush="Black" BorderThickness="1">Disconnect</Button>
+        <Button Command="{Binding ConnectCommand}" Grid.Row="3" Grid.Column="1" Margin="20,34,174,34" BorderBrush="Black" BorderThickness="1">Connect</Button>
+        <Button Command="{Binding DisconnectCommand}" Grid.Row="3" Grid.Column="1" Margin="174,34,20,34" BorderBrush="Black" BorderThickness="1">Disconnect</Button>
 
 
         <TextBox Text="{Binding Path=MessageToSend}" Margin="20,34,149,34" Grid.Row="3" Grid.Column="2"  />
-        <Border BorderBrush="Black" BorderThickness="1" Margin="0,34,20,34" Grid.Row="3" Grid.Column="2">
         <Button Command="{Binding PushCommand}"  HorizontalAlignment="Right" Width="109" >Send Message!</Button>
-        </Border>
 
     </Grid>
 </Window>
