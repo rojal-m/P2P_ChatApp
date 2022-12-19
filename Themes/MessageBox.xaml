@@ -20,9 +20,9 @@
                                      Foreground="gray"
                                      CaretBrush="Gray"
                                      Margin="8, 0, 0, 0"
-                                     Text="{Binding Messages, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                     Text="{Binding MessageToSend, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                                 <TextBox.InputBindings>
-                                    <KeyBinding Command="{Binding SendCommand}" Key="Return"/>
+                                    <KeyBinding Command="{Binding PushCommand}" Key="Return"/>
                                 </TextBox.InputBindings>
                             </TextBox>
                             <TextBlock IsHitTestVisible="False"

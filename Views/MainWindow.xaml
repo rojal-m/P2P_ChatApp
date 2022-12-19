@@ -91,43 +91,49 @@
                     <RowDefinition/>
                     <RowDefinition Height="60"/>
                 </Grid.RowDefinitions>
-
+                <!--contact title-->
                 <Label Content="Contacts"
                        VerticalAlignment="Center"
                        FontWeight="Medium"
                        Foreground="Gray"
                        Margin="8,0,0,0"/>
-
+                <!--Contact main page-->
                 <ListView ItemsSource="{Binding Contacts}"
                           Background="Transparent"
                           BorderThickness="0"
                           Grid.Row="1"
                           ItemContainerStyle="{StaticResource ContactCard}"/>
-
+                <!--connect and disconnect-->
                 <StackPanel Grid.Row="2"
                             Orientation="Horizontal"
                             Background="#292b2f">
-
+                    <!--connect button-->
                     <Button
-                            Width="30"
-                            Height="30"
-                            Content="🔗"
-                            Background="Transparent"
-                            BorderThickness="0"
-                            Foreground="#3bff6f"
-                            FontWeight="Bold"
-                            Margin="0,0,0,3"
-                            Click="Connect_Button"/>
+                        Width="50"
+                        Height="50"
+                        Background="Transparent"
+                        Click="Connect_Button"
+                        Margin="30,5,5,0"
+                        BorderThickness="0">
+                        <StackPanel>
+                            <Image Source="../Assets/connect.png"
+                               Margin="5,5,5,0"/>
+                        </StackPanel>
+                    </Button>
+                    <!--disconnect button-->
                     <Button
-                            Width="30"
-                            Height="30"
-                            Content="3"
-                            Background="Transparent"
-                            BorderThickness="0"
-                           Foreground="Red"
-                            FontWeight="Bold"
-                            Margin="0,0,0,3"
-                            Click="Disconnect_Button"/>
+                        Width="50"
+                        Height="50"
+                        Background="Transparent"
+                        Click="Disconnect_Button"
+                        Margin="30,5,5,0"
+                        BorderThickness="0">
+                        <StackPanel>
+                            <Image Source="../Assets/disconnect.png"
+                               RenderOptions.BitmapScalingMode="Fant"
+                               Margin="5,5,5,0"/>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
             </Grid>
             
