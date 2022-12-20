@@ -12,6 +12,7 @@
 	  <None Remove="Assets\connect.png" />
 	  <None Remove="Assets\disconnect.png" />
 	  <None Remove="Assets\image.png" />
+	  <None Remove="Assets\listen.png" />
 	  <None Remove="Assets\send.png" />
 	</ItemGroup>
 
@@ -26,6 +27,9 @@
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Include="Assets\image.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="Assets\listen.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Include="Assets\send.png">
