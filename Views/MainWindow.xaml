@@ -83,12 +83,6 @@
                     </StackPanel>
                 </Grid>
             </Border>
-            <Popup Grid.Row="1"
-                   IsOpen="{Binding ConnectionIsOpen}" 
-                   Panel.ZIndex="100">
-                <local:SocketPopupUserControl/>
-            </Popup>
-
             <!--History Chat list-->
             <Grid Background="#2f3136"  Grid.Row="1">
                 <Grid.RowDefinitions>
@@ -123,7 +117,7 @@
                                 VerticalAlignment="Center"
                                 HorizontalAlignment="Center"
                                 Margin="10,0,10,0">
-                        <TextBox Text="{Binding IpAddress}" 
+                        <TextBox Text="{Binding User.Name}" 
                                  Width="265"
                                  Height="30"
                                  Margin="8,0,0,0"

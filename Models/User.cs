@@ -11,7 +11,7 @@ using System.Windows;
 
 namespace P2P_Chat_App.Models
 {
-    public class User
+    public class User : INotifyPropertyChanged
     {
         private String _name;
         private String _ip;
@@ -57,19 +57,6 @@ namespace P2P_Chat_App.Models
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             Trace.WriteLine(propertyName);
-            if (propertyName == nameof(Port))
-            {
-                Application app = Application.Current;
-                if (app != null)
-                {
-                    Window mainWindow = app.MainWindow;
-                    if (mainWindow != null)
-                    {
-                        MainViewModel vm = (MainViewModel)App.Current.MainWindow.DataContext;
-                        vm.listen();
-                    }
-                }
-            }
         }
     }
 }

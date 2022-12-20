@@ -1,12 +1,14 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -47,8 +49,12 @@ namespace P2P_Chat_App.Models
         public User Friend
         {
             get { return _friend; }
-            set { _friend = value; }
+            set 
+            { 
+                _friend = value;
+            }
         }
+
 
         public ConnectionHandler()
         {
@@ -62,6 +68,7 @@ namespace P2P_Chat_App.Models
             if (ReListenBox()) // if not accepted connection
             {
                 keepListening = false;
+                listenConnected.Set();
                 listningFinish.WaitOne();
                 listen.Close();
                 Listen();
@@ -130,12 +137,13 @@ namespace P2P_Chat_App.Models
         {
             try
             {
-                MessageBox.Show("signal");
-                listenConnected.Set();
+                Thread.Sleep(1000);
+                
                 // Get the socket that handles the client request.
                 Socket listener = (Socket)ar.AsyncState;
                 // End the operation.
                 Socket handler = listener.EndAccept(ar);
+                listenConnected.Set();
 
                 byte[] bytes = new byte[1024 * 5000];
                 int bytesRec = handler.Receive(bytes);
@@ -443,13 +451,13 @@ namespace P2P_Chat_App.Models
 
         public void End()
         {
+            if (connectionAccepted)
+            {
+                int bytesSent = sendPacket(connect, new ChatProtocol("disconnect", User.Name, "disconnected"));
+            }
             keepListening = false;
             listenConnected.Set();
             listningFinish.WaitOne();  // Block the thread until the event is set.
-            if(listen.Connected)
-            {
-                listen.Shutdown(SocketShutdown.Both);
-            }
             listen.Close();
             Trace.WriteLine("Listen ended");
         }

@@ -32,28 +32,17 @@ namespace P2P_Chat_App.ViewModels
         }
 
         private ICommand _pushCommand;
-        private ICommand _connectCommand;
         private ICommand _disconnectCommand;
-        private ICommand _relistenCommand;
         public ICommand PushCommand
         {
             get { return _pushCommand; }
             set { _pushCommand = value; }
         }
-        public ICommand ConnectCommand
-        {
-            get { return _connectCommand; }
-            set { _connectCommand = value; }
-        }
+        
         public ICommand DisconnectCommand
         {
             get { return _disconnectCommand; }
             set { _disconnectCommand = value; }
-        }
-        public ICommand ReListenCommand
-        {
-            get { return _relistenCommand; }
-            set { _relistenCommand = value; }
         }
 
         private User _user;
@@ -70,7 +59,11 @@ namespace P2P_Chat_App.ViewModels
         public User Friend
         {
             get { return _friend; }
-            set { _friend = value; }
+            set 
+            { 
+                _friend = value;
+                OnPropertyChanged();
+            }
         }
 
         private bool _connectionIsOpen;
@@ -85,7 +78,7 @@ namespace P2P_Chat_App.ViewModels
         }
 
         public ICommand OpenPopupCommand { get; set; }
-        public PopupViewModel Popup { get; set; }
+        public ConnectionViewModel Popup { get; set; }
         
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -93,7 +86,11 @@ namespace P2P_Chat_App.ViewModels
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             if (propertyName == nameof(User))
             {
-                
+                Connection.User = User;
+            }
+            if (propertyName == nameof(Friend))
+            {
+                Connection.Friend = Friend;
             }
         }
         
@@ -106,15 +103,13 @@ namespace P2P_Chat_App.ViewModels
             User = Connection.User;
             Friend = Connection.Friend;
             PushCommand = new SendMessageCommand(this);
-            ConnectCommand = new ConnectCommand(this);
             DisconnectCommand = new DisconnectCommand(this);
-            ReListenCommand = new ReListenCommand(this);
-            OpenPopupCommand = new DelegateCommand(OpenPopup);
-            
+            OpenPopupCommand = new OpenPopupCommand(this);
         }
-        private void OpenPopup()
+        public void OpenPopup()
         {
-            Popup = new PopupViewModel(this);
+            ConnectionWindow connectWindow = new ConnectionWindow(new ConnectionViewModel(this));
+            connectWindow.Show();
         }
         public void sendMessage()
         {

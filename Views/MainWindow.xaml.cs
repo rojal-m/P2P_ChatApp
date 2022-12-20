@@ -68,8 +68,7 @@ namespace P2P_Chat_App
 
         private void Connect_Button(object sender, RoutedEventArgs e)
         {
-           connection infowindow = new connection();
-            infowindow.Show();
+           
         }
 
         private void Disconnect_Button(object sender, RoutedEventArgs e)

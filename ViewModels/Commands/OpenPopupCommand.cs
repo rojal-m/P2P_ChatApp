@@ -7,18 +7,18 @@ using System.Windows.Input;
 
 namespace P2P_Chat_App.ViewModels.Commands
 {
-    internal class ReListenCommand : ICommand
+    internal class OpenPopupCommand : ICommand
     {
         public event EventHandler? CanExecuteChanged;
-        private ConnectionViewModel _parent;
+        private MainViewModel _parent;
 
-        public ConnectionViewModel Parent
+        public MainViewModel Parent
         {
             get { return _parent; }
             set { _parent = value; }
         }
 
-        public ReListenCommand(ConnectionViewModel parent)
+        public OpenPopupCommand(MainViewModel parent)
         {
             this.Parent = parent;
         }
@@ -28,7 +28,7 @@ namespace P2P_Chat_App.ViewModels.Commands
         }
         public void Execute(object? parameter)
         {
-            Parent.Listen();
+            Parent.OpenPopup();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using P2P_Chat_App.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,11 +18,12 @@ namespace P2P_Chat_App
     /// <summary>
     /// Interaction logic for connection.xaml
     /// </summary>
-    public partial class connection : Window
+    public partial class ConnectionWindow : Window
     {
-        public connection()
+        public ConnectionWindow(ConnectionViewModel popupVM)
         {
             InitializeComponent();
+            this.DataContext= popupVM;
         }
     }
 }

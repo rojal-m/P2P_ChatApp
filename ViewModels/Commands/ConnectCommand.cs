@@ -10,15 +10,15 @@ namespace P2P_Chat_App.ViewModels.Commands
     internal class ConnectCommand : ICommand
     {
         public event EventHandler? CanExecuteChanged;
-        private MainViewModel _parent;
+        private ConnectionViewModel _parent;
 
-        public MainViewModel Parent
+        public ConnectionViewModel Parent
         {
             get { return _parent; }
             set { _parent = value; }
         }
 
-        public ConnectCommand(MainViewModel parent)
+        public ConnectCommand(ConnectionViewModel parent)
         {
             this.Parent = parent;
         }
@@ -28,7 +28,7 @@ namespace P2P_Chat_App.ViewModels.Commands
         }
         public void Execute(object? parameter)
         {
-            Parent.connect();
+            Parent.Connect();
         }
     }
 }
