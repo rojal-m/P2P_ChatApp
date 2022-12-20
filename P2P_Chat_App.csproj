@@ -8,12 +8,38 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Folder Include="Assets\" />
+	  <None Remove="Assets\call.png" />
+	  <None Remove="Assets\connect.png" />
+	  <None Remove="Assets\disconnect.png" />
+	  <None Remove="Assets\image.png" />
+	  <None Remove="Assets\send.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="Assets\call.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="Assets\connect.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="Assets\disconnect.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="Assets\image.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="Assets\send.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	</ItemGroup>
+
+	<ItemGroup>
 	  <Folder Include="Themes\" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+	  <PackageReference Include="Prism.Core" Version="8.1.97" />
 	</ItemGroup>
 
 </Project>

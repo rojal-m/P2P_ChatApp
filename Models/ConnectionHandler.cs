@@ -30,6 +30,8 @@ namespace P2P_Chat_App.Models
         private User _friend;
 
         static ManualResetEvent listningFinish = new ManualResetEvent(false);
+        static ManualResetEvent listenConnected = new ManualResetEvent(false);
+
 
 
 
@@ -50,9 +52,6 @@ namespace P2P_Chat_App.Models
 
         public ConnectionHandler()
         {
-
-            
-
             User = new User("DefaultUser", GetLocalIP(), GetLocalPort());
             Friend = new User("DefaultFriend", GetLocalIP(), GetLocalPort());
 
@@ -94,7 +93,7 @@ namespace P2P_Chat_App.Models
                     {
                         // Begin accepting incoming connections asynchronously.
                         listen.BeginAccept(new AsyncCallback(ListenCallback), listen);
-
+                        listenConnected.WaitOne();
                         // Wait for the asynchronous operation to complete.
                         Thread.Sleep(1000);
                     }
@@ -131,6 +130,8 @@ namespace P2P_Chat_App.Models
         {
             try
             {
+                MessageBox.Show("signal");
+                listenConnected.Set();
                 // Get the socket that handles the client request.
                 Socket listener = (Socket)ar.AsyncState;
                 // End the operation.
@@ -443,6 +444,7 @@ namespace P2P_Chat_App.Models
         public void End()
         {
             keepListening = false;
+            listenConnected.Set();
             listningFinish.WaitOne();  // Block the thread until the event is set.
             if(listen.Connected)
             {

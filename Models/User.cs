@@ -11,7 +11,7 @@ using System.Windows;
 
 namespace P2P_Chat_App.Models
 {
-    public class User : INotifyPropertyChanged
+    public class User
     {
         private String _name;
         private String _ip;
