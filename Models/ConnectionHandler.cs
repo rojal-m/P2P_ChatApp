@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
@@ -15,19 +16,22 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace P2P_Chat_App.Models
 {
     public class ConnectionHandler
     {
-        private static int DEFAULT_PORT = 11000; 
+        private static int DEFAULT_PORT = 11000;
+        private static string GRAY = "#3e4042";
+        private static string BLUE = "#0084ff";
+
         private Socket listen;
         private Thread listenThread;
         private bool keepListening;
 
         private Socket connect;
         private bool connectionAccepted = false;
-        private DateTime convoDT;
         private User _user;
         private User _friend;
 
@@ -54,12 +58,24 @@ namespace P2P_Chat_App.Models
                 _friend = value;
             }
         }
+        public ObservableCollection<ChatItem> SelectedContactMessages { get; set; }
 
 
         public ConnectionHandler()
         {
             User = new User("DefaultUser", GetLocalIP(), GetLocalPort());
             Friend = new User("DefaultFriend", GetLocalIP(), GetLocalPort());
+            SelectedContactMessages = new ObservableCollection<ChatItem>();
+            SelectedContactMessages.Add(new ChatItem() { usernameColor = GRAY, Username = "John Doe", Time = DateTime.Now, Message = "john@doe-family.com" });
+            SelectedContactMessages.Add(new ChatItem() { usernameColor = "Red", Username = "Jane Doe", Time = DateTime.Now, Message = "john@do mily.com" });
+            SelectedContactMessages.Add(new ChatItem() { usernameColor = GRAY, Username = "John Doe", Time = DateTime.Now, Message = "john@doe- ly.com" });
+            SelectedContactMessages.Add(new ChatItem() { usernameColor = BLUE, Username = "Jane Doe", Time = DateTime.Now, Message = "john@doe-fam om" });
+            SelectedContactMessages.Add(new ChatItem() { usernameColor = GRAY, Username = "John Doe", Time = DateTime.Now, Message = "john@doe-  .com" });
+            SelectedContactMessages.Add(new ChatItem() { usernameColor = BLUE, Username = "Jane Doe", Time = DateTime.Now, Message = "john@ mily.com" });
+            SelectedContactMessages.Add(new ChatItem() { usernameColor = GRAY, Username = "John Doe", Time = DateTime.Now, Message = "john@doe-fa .com" });
+            SelectedContactMessages.Add(new ChatItem() { usernameColor = BLUE, Username = "Jane Doe", Time = DateTime.Now, Message = "john@doe-family.com" });
+            SelectedContactMessages.Add(new ChatItem() { usernameColor = BLUE, Username = "John Doe", Time = DateTime.Now, Message = "john@doe-f .com" });
+            SelectedContactMessages.Add(new ChatItem() { usernameColor = GRAY, Username = "Jane Doe", Time = DateTime.Now, Message = "john@do amily.com" });
 
             Listen();
         }
@@ -143,51 +159,47 @@ namespace P2P_Chat_App.Models
                 Socket listener = (Socket)ar.AsyncState;
                 // End the operation.
                 Socket handler = listener.EndAccept(ar);
+                connect = handler;
                 listenConnected.Set();
 
                 byte[] bytes = new byte[1024 * 5000];
-                int bytesRec = handler.Receive(bytes);
+                int bytesRec = connect.Receive(bytes);
                 string currFriend = Encoding.UTF8.GetString(bytes, 0, bytesRec);
                 Friend.Name = currFriend;
-                convoDT = DateTime.Now;
 
                 // Accept or decline incoming connection request 
 
                 if (!AcceptRequestBox(currFriend)) // if not accepted connection
                 {
                     connectionAccepted = false;
-                    int bytesSent = sendPacket(handler, new ChatProtocol("connectionDeclined", User.Name, ""));
-
-                    MessageBox.Show(User.Name + ": Connection declined to " + Friend.Name);
-                    handler.Shutdown(SocketShutdown.Both);
-                    handler.Close();
-                    Trace.WriteLine("socket closed");
+                    int bytesSent = sendPacket(connect, new ChatProtocol("connectionDeclined", User.Name, ""));
                 }
                 else
                 {
                     connectionAccepted = true;
-                    int bytesSent = sendPacket(handler, new ChatProtocol("connectionAccepted", User.Name, ""));
+                    int bytesSent = sendPacket(connect, new ChatProtocol("connectionAccepted", User.Name, "Connected!!"));
 
-                    MessageBox.Show(User.Name+": Connection accepted to " + Friend.Name);
-                    connect = handler;
                     //Start conversation by storing in data base and notifying the view model
+                    AddChat(new ChatItem() { usernameColor = BLUE, Username = User.Name, Time = DateTime.Now, Message = "Connected!!" });
                 }
-                
+
                 string data = null;
                 while (connectionAccepted)
                 {
                     connected(connect, data);
                 }
-                Trace.WriteLine("Connection Ended.");
+                connect.Shutdown(SocketShutdown.Both);
+                connect.Close();
+                connect = null;
             }
             catch (SocketException se)
             {
                 connectionAccepted = false;
-                listen.Shutdown(SocketShutdown.Both);
-                listen.Close();
+                MessageBox.Show(User.Name + "> Connection broken.L");
+
             }
             catch (ObjectDisposedException ox) {
-                Trace.WriteLine("Listning socket closed");
+                Trace.WriteLine(User.Name + "> Listning socket closed");
             }
         }
 
@@ -279,16 +291,13 @@ namespace P2P_Chat_App.Models
                     {
                         MessageBox.Show(User.Name + ": Connection declined by " + response.Username);
                         connectionAccepted = false;
-                        connect.Shutdown(SocketShutdown.Both);
-                        connect.Close();
                     }
                     else
                     {
                         connectionAccepted = true;
                         Friend.Name = response.Username;
-                        MessageBox.Show(User.Name + ": Connection accepted by " + Friend.Name);
-
                         //Start conversation by storing in data base and notifying the view model
+                        AddChat(new ChatItem() { usernameColor = GRAY, Username = User.Name, Time = DateTime.Now, Message = Friend.Name+" Connected!!" });
                     }
                     string data = null;
                     while (connectionAccepted)
@@ -296,22 +305,22 @@ namespace P2P_Chat_App.Models
                         connected(connect, data);
                     }
                 }
-                
+                connect.Shutdown(SocketShutdown.Both);
+                connect.Close();
+                connect = null;
             }
             catch (SocketException se)
             {
                 if (connectionAccepted)
                 {
                     connectionAccepted = false;
-                    connect.Shutdown(SocketShutdown.Both);
-                    connect.Close();
-                    MessageBox.Show("Connection broken.");
+                    MessageBox.Show(User.Name + "> Connection broken.C");
                     //p2p.MainWindow.AppWindow.ConnectionBroken();
                 }
                 else
                 {
                     //p2p.MainWindow.AppWindow.DisconnectCallback();
-                    MessageBox.Show("There is no friend listening on that port!");
+                    MessageBox.Show(User.Name + "> Device refuse to connect.");
                 }
             }
         }
@@ -323,35 +332,40 @@ namespace P2P_Chat_App.Models
                 DateTime timestamp = DateTime.Now;
                 if (responseMessage.Type == "disconnect")
                 {
-                    int bytesSend = sendPacket(handler, new ChatProtocol("disconnect", User.Name, " disconnected"));
                     connectionAccepted = false;
-                    handler.Shutdown(SocketShutdown.Both);
-                    handler.Close();
-
                     //Start conversation by storing in data base and notifying the view model
-                    MessageBox.Show(responseMessage.Username + " disconnected.");
+                    AddChat(new ChatItem() { usernameColor = GRAY, Username = responseMessage.Username, Time = timestamp, Message = responseMessage.Message });
                 }
                 else if (responseMessage.Type == "message")
                 {
                     //storing message in database and notifying the view model
-                    MessageBox.Show(timestamp.ToString() + " " + responseMessage.Username + " said : " + responseMessage.Message);
+                    AddChat(new ChatItem() { usernameColor = GRAY, Username = responseMessage.Username, Time = timestamp, Message = responseMessage.Message });                  
                 }
             }
             else
             {
-                MessageBox.Show("End connection");
                 connectionAccepted = false;
             }
         }
 
-        public void sendMessage(string message, string Name, string IP, string port)
+        private void AddChat(ChatItem chatItem)
+        {
+            Application.Current.Dispatcher.BeginInvoke((Action)delegate
+            {
+                SelectedContactMessages.Add(chatItem);
+            });
+        }
+
+        public void sendMessage(string message)
         {
             // Here is the code which sends the data over the network.
             try
             {
                 if (connectionAccepted)
                 {
+                    DateTime timestamp = DateTime.Now;
                     int bytesSend = sendPacket(connect, new ChatProtocol("message", User.Name, message));
+                    AddChat(new ChatItem() { usernameColor = BLUE, Username = User.Name, Time = timestamp, Message = message });
 
                 }
                 else
@@ -362,8 +376,6 @@ namespace P2P_Chat_App.Models
             catch (SocketException sex)
             {
                 connectionAccepted = false;
-                connect.Shutdown(SocketShutdown.Both);
-                connect.Close();
                 MessageBox.Show("Message not sent.");
             }
         }
@@ -374,7 +386,9 @@ namespace P2P_Chat_App.Models
             {
                 if (connectionAccepted)
                 {
-                    int bytesSent = sendPacket(connect, new ChatProtocol("disconnect", User.Name, "disconnected"));
+                    int bytesSent = sendPacket(connect, new ChatProtocol("disconnect", User.Name, "Disconnected..."));
+                    connectionAccepted = false;
+                    AddChat(new ChatItem() { usernameColor = BLUE, Username = User.Name, Time = DateTime.Now, Message = "Disconnected..." });
                 }
                 else
                 {
@@ -384,8 +398,6 @@ namespace P2P_Chat_App.Models
             catch (SocketException sex)
             {
                 connectionAccepted = false;
-                connect.Shutdown(SocketShutdown.Both);
-                connect.Close();
                 MessageBox.Show("Couldn't disconnect.");
             }
         }
@@ -453,7 +465,9 @@ namespace P2P_Chat_App.Models
         {
             if (connectionAccepted)
             {
-                int bytesSent = sendPacket(connect, new ChatProtocol("disconnect", User.Name, "disconnected"));
+                int bytesSent = sendPacket(connect, new ChatProtocol("disconnect", User.Name, "Disconnected..."));
+                connectionAccepted = false;
+                AddChat(new ChatItem() { usernameColor = BLUE, Username = User.Name, Time = DateTime.Now, Message = "Disconnected..." });
             }
             keepListening = false;
             listenConnected.Set();

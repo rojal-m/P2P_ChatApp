@@ -6,21 +6,23 @@ using System.Threading.Tasks;
 
 namespace P2P_Chat_App.Models
 {
-    public class ChatProtocol
+    public class ChatItem
     {
+
         private string _type;
         private string _username;
         private DateTime _timestamp = DateTime.Now;
         private string _message;
 
-        public ChatProtocol(string type, string username, string message)
+        public ChatItem() { }
+        public ChatItem(string type, string username, string message)
         {
             _type = type;
             _username = username;
             _message = message;
         }
 
-        public string Type
+        public string usernameColor
         {
             get
             {
@@ -46,7 +48,7 @@ namespace P2P_Chat_App.Models
             }
         }
 
-        public DateTime Timestamp
+        public DateTime Time
         {
             get
             {

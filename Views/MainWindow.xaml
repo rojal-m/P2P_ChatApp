@@ -3,7 +3,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:P2P_Chat_App.Views"
+        xmlns:controls="clr-namespace:System.Windows.Controls;assembly=PresentationFramework"
+        xmlns:local="clr-namespace:P2P_Chat_App.Views" 
         mc:Ignorable="d"
         x:Name="mainwindow"
         AllowsTransparency="True"
@@ -150,7 +151,6 @@
                             Height="50"
                             Background="Transparent"
                             Command="{Binding OpenPopupCommand}"
-                            Click="Connect_Button"
                             Margin="0,0,15,0"
                             BorderThickness="0">
                         <StackPanel HorizontalAlignment="Center"
@@ -204,7 +204,7 @@
                                 Width="30"
                                 Height="30"
                                 Background="Transparent"
-                                Click="Connect_Button"
+                                Command=""
                                 Margin="0,0,5,0"
                                 BorderThickness="0">
                                 <StackPanel HorizontalAlignment="Center"
@@ -218,12 +218,16 @@
                     </Grid>
                 </Border>
 
-                <ListView ItemsSource="{Binding SelectedContactMessages}" 
+                <ListView x:Name="myListView"
+                          ItemsSource="{Binding SelectedContactMessages}" 
                           Background="Transparent"
                           BorderThickness="0"
                           ItemContainerStyle="{StaticResource ChatItem}"
                           Margin="8,0,0,0"
-                          Grid.Row="1"/>
+                          Grid.Row="1"
+                          ScrollViewer.PanningMode="HorizontalOnly"
+                          ScrollViewer.CanContentScroll="False"
+                          />
 
                 <Grid Grid.Row="2">
                     <Grid.ColumnDefinitions>
@@ -246,7 +250,7 @@
                             Width="50"
                             Height="50"
                             Background="Transparent"
-                            Click="Connect_Button"
+                            Command="{Binding}"
                             Margin="0,0,5,0"
                             BorderThickness="0">
                             <StackPanel HorizontalAlignment="Center"
@@ -260,7 +264,7 @@
                             Width="50"
                             Height="50"
                             Background="Transparent"
-                            Click="Connect_Button"
+                            Command="{Binding PushCommand}"
                             Margin="5,0,0,0"
                             BorderThickness="0">
                             <StackPanel HorizontalAlignment="Center"

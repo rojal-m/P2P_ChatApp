@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -28,7 +29,11 @@ namespace P2P_Chat_App
             InitializeComponent();
             this.DataContext = mainViewModel;
             this.Closing += mainViewModel.closingWindow;
+            // Subscribe to the CollectionChanged event of the ObservableCollection
+           // ((MainViewModel)DataContext).SelectedContactMessages.CollectionChanged += MainWindow_CollectionChanged;
         }
+
+
         private void TextBox_CheckNum(object sender, TextCompositionEventArgs e)
         {
             // Check if the entered text is a numerical value
@@ -65,15 +70,16 @@ namespace P2P_Chat_App
         {
             Application.Current.Shutdown();
         }
-
-        private void Connect_Button(object sender, RoutedEventArgs e)
+        /*
+        public void MainWindow_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
-           
+            myListView.ScrollIntoView(myListView.Items[myListView.Items.Count - 1]);
+            
         }
-
-        private void Disconnect_Button(object sender, RoutedEventArgs e)
+        public void CollectionChanged()
         {
-
-        }
+            myListView.ScrollIntoView(myListView.Items[myListView.Items.Count - 1]);
+            MessageBox.Show("Now HERE");
+        }*/
     }
 }
