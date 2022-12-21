@@ -1,12 +1,19 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+                    xmlns:prism="http://prismlibrary.com">
     <Style TargetType="ListViewItem" x:Key="ContactCard">
 
         <Style.Triggers>
             <Trigger Property="IsSelected" Value="True">
                 <Setter Property="Background" Value="#292b2f"/>
             </Trigger>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="Transparent"/>
+            </Trigger>
         </Style.Triggers>
+
+        
 
         <Setter Property="Background" Value="#393b40"/>
 
@@ -16,23 +23,29 @@
                     <Border Background="{TemplateBinding Background}"
                             Height="50"
                             CornerRadius="4"
-                            Margin="8,2,8,2 ">
-
-                        <StackPanel Orientation="Horizontal"
+                            Margin="8,2,8,2">
+                        <Button Command="{Binding DataContext.ShowHistoryCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                CommandParameter="{Binding}"
+                                Background="Transparent"
+                                Margin="0,0,0,0"
+                                BorderThickness="0"
+                                VerticalContentAlignment="Center"
+                                HorizontalContentAlignment="Left">
+                            <StackPanel Orientation="Horizontal"
                                     Margin="10,0,0,0">
-                            <Border Width="30" Height="30"
+                                <Border Width="30" Height="30"
                                     Background="CornflowerBlue"
                                     CornerRadius="25"/>
 
-                            <StackPanel>
-                                <Label Content="Username"
+                                <StackPanel>
+                                    <Label Content="{Binding}"
                                    Foreground="Gray"
                                    FontWeight="SemiBold"
                                    FontSize="8"
                                    VerticalAlignment="Center"/>
+                                </StackPanel>
                             </StackPanel>
-                        </StackPanel>
-                        
+                        </Button>
                     </Border>
                 </ControlTemplate>
             </Setter.Value>

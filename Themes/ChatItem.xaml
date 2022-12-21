@@ -29,30 +29,14 @@
                                    Foreground="White"
                                    FontWeight="Regular"
                                    VerticalAlignment="Center"/>
-                            </Border> 
-                            
-     
+                            </Border>
+
+
                         </StackPanel>
-                     
+
                     </StackPanel>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-        <Style.Resources>
-            <ControlTemplate x:Key="CustomRow">
-                <StackPanel Orientation="Horizontal">
-                    <Label Content="{Binding Message}"
-                           Foreground="Black"
-                           Margin="40,-2,0,-2"/>
-                </StackPanel>
-            </ControlTemplate>
-        </Style.Resources>
-
-        <Style.Triggers>
-            <DataTrigger Binding="{Binding FirstMessage}" Value="False">
-                <Setter Property="Template" Value="{StaticResource CustomRow}"/>
-            </DataTrigger>
-        </Style.Triggers>
-      
     </Style>
 </ResourceDictionary>
