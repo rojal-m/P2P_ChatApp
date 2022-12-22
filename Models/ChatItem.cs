@@ -54,7 +54,7 @@ namespace P2P_Chat_App.Models
             {
                 return _timestamp;
             }
-            set { }
+            set { _timestamp = value; }
         }
 
         public string Message

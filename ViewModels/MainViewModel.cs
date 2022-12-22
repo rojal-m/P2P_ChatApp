@@ -178,6 +178,7 @@ namespace P2P_Chat_App.ViewModels
             {
                 SelectedContactMessages.Add(item);
             }
+            Friend.Name = friend;
         }
         public void OpenPopup()
         {

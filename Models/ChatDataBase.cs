@@ -114,8 +114,9 @@ namespace P2P_Chat_App.Models
                 {/*
                     if (!reader.IsDBNull(nrOfRows++))                                    //checking if column is null as + counting rows
                     {*/
-                        //datetime TEXT, message TEXT, sender TEXT, color TEXT
-                        messageHistory.Add(new ChatItem() { usernameColor = reader.GetString("color"), Username = reader.GetString("sender"), Time = reader.GetDateTime("datetime"), Message = reader.GetString("message") });
+                    //datetime TEXT, message TEXT, sender TEXT, color TEXT
+                    DateTime timestamp = DateTime.Parse(reader.GetString("datetime"));
+                    messageHistory.Add(new ChatItem() { usernameColor = reader.GetString("color"), Username = reader.GetString("sender"), Time = timestamp, Message = reader.GetString("message") });
                 }
                 if (messageHistory.Count < 1)
                 {
