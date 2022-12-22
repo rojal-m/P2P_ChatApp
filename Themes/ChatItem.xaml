@@ -12,28 +12,22 @@
                                    FontWeight="SemiBold"
                                    VerticalAlignment="Center"
                                    Margin="0,0,-5,0"/>
-
                                 <Label Content="{Binding Time}"
                                    Foreground="Gray"
                                    FontWeight="SemiBold"
                                    FontSize="8"
                                    VerticalAlignment="Center"/>
-
                             </StackPanel>
-
                             <Border Background="{Binding usernameColor}"
                                     CornerRadius="5"
-                                    MaxWidth="300"
-                                    MinWidth="70">
-                                <Label Content="{Binding Message}"
-                                   Foreground="White"
-                                   FontWeight="Regular"
-                                   VerticalAlignment="Center"/>
+                                    Width="200">
+                                <Label  Content="{Binding Message}"
+                                        Foreground="White"
+                                        FontWeight="Regular"
+                                        VerticalAlignment="Center"
+                                        Margin="4,2,4,2"/>
                             </Border>
-
-
                         </StackPanel>
-
                     </StackPanel>
                 </ControlTemplate>
             </Setter.Value>

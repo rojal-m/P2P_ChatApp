@@ -70,6 +70,7 @@ namespace P2P_Chat_App.Models
             SelectedContactMessages = new ObservableCollection<ChatItem>();
             Listen();
         }
+        //---------------------------------------------------------Calls From ViewModel---------------------------------------------------------
         public int Relisten()
         {
             if (ReListenBox()) // if not accepted connection
@@ -86,8 +87,143 @@ namespace P2P_Chat_App.Models
                 return 0;
             }
         }
-
-        public int Listen()
+        public int Connect()
+        {
+            try
+            {
+                if (Friend.IP == User.IP && Friend.Port == User.Port)
+                {
+                    MessageBox.Show("Connecting to yourself");
+                    return 0;
+                }
+                else if (connectionAccepted)
+                {
+                    MessageBox.Show("Already connected");
+                    return 0;
+                }
+                connect = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                connect.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
+                IPEndPoint friendEndPoint = new IPEndPoint(IPAddress.Parse(Friend.IP), Convert.ToInt32(Friend.Port));
+                connect.BeginConnect(friendEndPoint, new AsyncCallback(ConnectCallback), connect);
+                return 1;
+            }
+            catch (SocketException sex)
+            {
+                MessageBox.Show("There was a problem connecting" + sex);
+                return 0;
+            }
+            catch (FormatException fex)
+            {
+                MessageBox.Show("Invalid IP or PORT number");
+                return 0;
+            }
+            catch (ArgumentOutOfRangeException range)
+            {
+                MessageBox.Show("Invalid IP or PORT number");
+                return 0;
+            }
+            catch (OverflowException oex)
+            {
+                MessageBox.Show("Invalid IP or PORT number");
+                return 0;
+            }
+            catch (ObjectDisposedException ox)
+            {
+                MessageBox.Show("Cannot connect again. Restart.");
+                return 0;
+            }
+        }
+        public void Disconnect()
+        {
+            try
+            {
+                if (connectionAccepted)
+                {
+                    int bytesSent = sendPacket(connect, new ChatProtocol("disconnect", User.Name, "Disconnected..."));
+                    connectionAccepted = false;
+                    DateTime timestamp = DateTime.Now;
+                    AddChat(new ChatItem() { usernameColor = "Black", Username = "System", Time = timestamp, Message = "Disconnected..." });
+                    ChatDataBase.AddMessage(timestamp, "Disconnected...", "System", "Black", Friend.Name);
+                }
+                else
+                {
+                    MessageBox.Show("Not connected to anyone.");
+                }
+            }
+            catch (SocketException sex)
+            {
+                connectionAccepted = false;
+                MessageBox.Show("Couldn't disconnect.");
+            }
+        }
+        public void sendMessage(string message)
+        {
+            // Here is the code which sends the data over the network.
+            try
+            {
+                if (connectionAccepted)
+                {
+                    if (message != null && message != "")
+                    {
+                        DateTime timestamp = DateTime.Now;
+                        int bytesSend = sendPacket(connect, new ChatProtocol("message", User.Name, message));
+                        AddChat(new ChatItem() { usernameColor = BLUE, Username = User.Name, Time = timestamp, Message = message });
+                        ChatDataBase.AddMessage(timestamp, message, User.Name, BLUE, Friend.Name);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Not connected to anyone.");
+                }
+            }
+            catch (SocketException sex)
+            {
+                connectionAccepted = false;
+                MessageBox.Show("Message not sent.");
+            }
+        }
+        public void Beeping()
+        {
+            // Here is the code which sends the data over the network.
+            try
+            {
+                if (connectionAccepted)
+                {
+                    string message = "Beeped";
+                    DateTime timestamp = DateTime.Now;
+                    int bytesSend = sendPacket(connect, new ChatProtocol("beep", User.Name, message));
+                    AddChat(new ChatItem() { usernameColor = BLUE, Username = User.Name, Time = timestamp, Message = message });
+                    ChatDataBase.AddMessage(timestamp, message, User.Name, BLUE, Friend.Name);
+                }
+                else
+                {
+                    MessageBox.Show("Not connected to anyone.");
+                }
+            }
+            catch (SocketException sex)
+            {
+                connectionAccepted = false;
+                MessageBox.Show("Message not sent.");
+            }
+        }
+        public void End()
+        {
+            if (connectionAccepted)
+            {
+                int bytesSent = sendPacket(connect, new ChatProtocol("disconnect", User.Name, "Disconnected..."));
+                connectionAccepted = false;
+                DateTime timestamp = DateTime.Now;
+                AddChat(new ChatItem() { usernameColor = "Black", Username = "System", Time = timestamp, Message = "Disconnected..." });
+                ChatDataBase.AddMessage(timestamp, "Disconnected...", "System", "Black", Friend.Name);
+            }
+            keepListening = false;
+            listenConnected.Set();
+            listningFinish.WaitOne();  // Block the thread until the event is set.
+            listen.Close();
+            Trace.WriteLine("Listen ended");
+        }
+        //---------------------------------------------------------Calls For ConnectionHandler---------------------------------------------------------
+        private int Listen()
         {
             try
             {
@@ -198,78 +334,6 @@ namespace P2P_Chat_App.Models
                 Trace.WriteLine(User.Name + "> Listning socket closed");
             }
         }
-
-        private int sendPacket(Socket handler, ChatProtocol Request)
-        {
-            //ChatProtocol Request = new ChatProtocol(messageType, username, message);
-            string jsonRequest = JsonConvert.SerializeObject(Request);
-            byte[] msg = Encoding.UTF8.GetBytes(jsonRequest);
-            int bytesSent = handler.Send(msg);
-            return bytesSent;
-        }
-
-        private ChatProtocol receivePacket(Socket connector)
-        {
-
-            byte[] msgBytes = new byte[1024 * 5000];
-            int msgRec = connector.Receive(msgBytes);
-            if (msgRec != 0)
-            {
-                string data = Encoding.UTF8.GetString(msgBytes, 0, msgRec);
-                return JsonConvert.DeserializeObject<ChatProtocol>(data);
-            } 
-            else
-            {
-                return null;
-            }
-        }
-
-        public int Connect()
-        {
-            try
-            {
-                if(Friend.IP == User.IP && Friend.Port == User.Port)
-                {
-                    MessageBox.Show("Connecting to yourself");
-                    return 0;
-                }
-                else if (connectionAccepted)
-                {
-                    MessageBox.Show("Already connected");
-                    return 0;
-                }
-                connect = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                connect.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
-                IPEndPoint friendEndPoint = new IPEndPoint(IPAddress.Parse(Friend.IP), Convert.ToInt32(Friend.Port)); 
-                connect.BeginConnect(friendEndPoint, new AsyncCallback(ConnectCallback), connect);
-                return 1;
-            }
-            catch (SocketException sex)
-            {
-                MessageBox.Show("There was a problem connecting"+sex);
-                return 0;
-            }
-            catch (FormatException fex)
-            {
-                MessageBox.Show("Invalid IP or PORT number");
-                return 0;
-            }
-            catch (ArgumentOutOfRangeException range)
-            {
-                MessageBox.Show("Invalid IP or PORT number");
-                return 0;
-            }
-            catch (OverflowException oex)
-            {
-                MessageBox.Show("Invalid IP or PORT number");
-                return 0;
-            }
-            catch (ObjectDisposedException ox)
-            {
-                MessageBox.Show("Cannot connect again. Restart.");
-                return 0;
-            }
-        }
         private void ConnectCallback(IAsyncResult ar)
         {
             try
@@ -296,7 +360,7 @@ namespace P2P_Chat_App.Models
                         ChatDataBase.InitConversation(Friend.Name);
                         //Start conversation by storing in data base and notifying the view model
                         DateTime timestamp = DateTime.Now;
-                        AddChat(new ChatItem() { usernameColor = "Black", Username = "System", Time = timestamp, Message = Friend.Name+" Connected!!" });
+                        AddChat(new ChatItem() { usernameColor = "Black", Username = "System", Time = timestamp, Message = Friend.Name + " Connected!!" });
                         ChatDataBase.AddMessage(timestamp, Friend.Name + " Connected!!", "System", "Black", Friend.Name);
 
                     }
@@ -315,7 +379,7 @@ namespace P2P_Chat_App.Models
                 if (connectionAccepted)
                 {
                     connectionAccepted = false;
-                    MessageBox.Show(User.Name + "> Connection broken.C");
+                    MessageBox.Show(User.Name + "> Connection broken.");
                     //p2p.MainWindow.AppWindow.ConnectionBroken();
                 }
                 else
@@ -358,111 +422,29 @@ namespace P2P_Chat_App.Models
             }
         }
 
-        private void AddChat(ChatItem chatItem)
+        //---------------------------------------------------------Helper Functions---------------------------------------------------------
+        private int sendPacket(Socket handler, ChatProtocol Request)
         {
-            Application.Current.Dispatcher.BeginInvoke((Action)delegate
-            {
-                SelectedContactMessages.Add(chatItem);
-            });
-        }
-        private void BEEP()
-        {
-            Application.Current.Dispatcher.BeginInvoke((Action)delegate
-            {
-                if (_mediaPlayer == null)
-                {
-                    _mediaPlayer = new MediaPlayer();
-                    _mediaPlayer.MediaFailed += (o, args) =>
-                    {
-                        //here you can get hint of what causes the failure 
-                        //from method parameter args 
-                        Trace.WriteLine(args);
-                    };
-                }
-                _mediaPlayer.Open(new Uri(@"../../../Assets/sound.wav", UriKind.Relative));
-                _mediaPlayer.Play();
-            });
-        }
-        private void DeleteChat()
-        {
-            Application.Current.Dispatcher.BeginInvoke((Action)delegate
-            {
-                SelectedContactMessages.Clear();
-            });
+            //ChatProtocol Request = new ChatProtocol(messageType, username, message);
+            string jsonRequest = JsonConvert.SerializeObject(Request);
+            byte[] msg = Encoding.UTF8.GetBytes(jsonRequest);
+            int bytesSent = handler.Send(msg);
+            return bytesSent;
         }
 
-        public void sendMessage(string message)
+        private ChatProtocol receivePacket(Socket connector)
         {
-            // Here is the code which sends the data over the network.
-            try
-            {
-                if (connectionAccepted)
-                {   
-                    if (message != null && message != "")
-                    {
-                        DateTime timestamp = DateTime.Now;
-                        int bytesSend = sendPacket(connect, new ChatProtocol("message", User.Name, message));
-                        AddChat(new ChatItem() { usernameColor = BLUE, Username = User.Name, Time = timestamp, Message = message });
-                        ChatDataBase.AddMessage(timestamp, message, User.Name, BLUE, Friend.Name);
-                    }
-                }
-                else
-                {
-                    MessageBox.Show("Not connected to anyone.");
-                }
-            }
-            catch (SocketException sex)
-            {
-                connectionAccepted = false;
-                MessageBox.Show("Message not sent.");
-            }
-        }
-        public void Beeping()
-        {
-            // Here is the code which sends the data over the network.
-            try
-            {
-                if (connectionAccepted)
-                {
-                    string message = "Beeped";
-                    DateTime timestamp = DateTime.Now;
-                    int bytesSend = sendPacket(connect, new ChatProtocol("beep", User.Name, message));
-                    AddChat(new ChatItem() { usernameColor = BLUE, Username = User.Name, Time = timestamp, Message = message });
-                    ChatDataBase.AddMessage(timestamp, message, User.Name, BLUE, Friend.Name);
-                }
-                else
-                {
-                    MessageBox.Show("Not connected to anyone.");
-                }
-            }
-            catch (SocketException sex)
-            {
-                connectionAccepted = false;
-                MessageBox.Show("Message not sent.");
-            }
-        }
 
-        public void Disconnect()
-        {
-            try
+            byte[] msgBytes = new byte[1024 * 5000];
+            int msgRec = connector.Receive(msgBytes);
+            if (msgRec != 0)
             {
-                if (connectionAccepted)
-                {
-                    int bytesSent = sendPacket(connect, new ChatProtocol("disconnect", User.Name, "Disconnected..."));
-                    connectionAccepted = false;
-                    DateTime timestamp = DateTime.Now;
-                    AddChat(new ChatItem() { usernameColor = "Black", Username = "System", Time = timestamp, Message = "Disconnected..." });
-                    ChatDataBase.AddMessage(timestamp, "Disconnected...", "System", "Black", Friend.Name);
-                }
-                else
-                {
-                    MessageBox.Show("Not connected to anyone.");
-                }
-            }
-            catch (SocketException sex)
+                string data = Encoding.UTF8.GetString(msgBytes, 0, msgRec);
+                return JsonConvert.DeserializeObject<ChatProtocol>(data);
+            } 
+            else
             {
-                connectionAccepted = false;
-                MessageBox.Show("Couldn't disconnect.");
+                return null;
             }
         }
 
@@ -483,7 +465,7 @@ namespace P2P_Chat_App.Models
         public string GetLocalPort()
         {
             int temp_port = DEFAULT_PORT;
-            for (int i = DEFAULT_PORT; i == temp_port; i++  )
+            for (int i = DEFAULT_PORT; i == temp_port; i++)
             {
                 TcpListener listener = new(IPAddress.Parse(GetLocalIP()), i);
                 try
@@ -501,7 +483,41 @@ namespace P2P_Chat_App.Models
             }
             return temp_port.ToString();
         }
-      
+        //---------------------------------------------------------Calls Using Dispatcher---------------------------------------------------------
+        private void AddChat(ChatItem chatItem)
+        {
+            Application.Current.Dispatcher.BeginInvoke((Action)delegate
+            {
+                SelectedContactMessages.Add(chatItem);
+            });
+        }
+        //Deletes the recently opened chat messages when there is new connection.
+        private void DeleteChat()
+        {
+            Application.Current.Dispatcher.BeginInvoke((Action)delegate
+            {
+                SelectedContactMessages.Clear();
+            });
+        }
+        private void BEEP()
+        {
+            Application.Current.Dispatcher.BeginInvoke((Action)delegate
+            {
+                if (_mediaPlayer == null)
+                {
+                    _mediaPlayer = new MediaPlayer();
+                    _mediaPlayer.MediaFailed += (o, args) =>
+                    {
+                        //here you can get hint of what causes the failure 
+                        //from method parameter args 
+                        Trace.WriteLine(args);
+                    };
+                }
+                _mediaPlayer.Open(new Uri(@"../../../Assets/sound.wav", UriKind.Relative));
+                _mediaPlayer.Play();
+            });
+        }
+        //---------------------------------------------------------CMessageBox With Questions---------------------------------------------------------      
         private bool AcceptRequestBox(string connectingFriendname)
         {
             if (MessageBox.Show("Connection request from: " + connectingFriendname + " \nAccept the request?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
@@ -523,23 +539,6 @@ namespace P2P_Chat_App.Models
             {
                 return true;
             }
-        }
-
-        public void End()
-        {
-            if (connectionAccepted)
-            {
-                int bytesSent = sendPacket(connect, new ChatProtocol("disconnect", User.Name, "Disconnected..."));
-                connectionAccepted = false;
-                DateTime timestamp = DateTime.Now;
-                AddChat(new ChatItem() { usernameColor = "Black", Username = "System", Time = timestamp, Message = "Disconnected..." });
-                ChatDataBase.AddMessage(timestamp, "Disconnected...", "System", "Black", Friend.Name);
-            }
-            keepListening = false;
-            listenConnected.Set();
-            listningFinish.WaitOne();  // Block the thread until the event is set.
-            listen.Close();
-            Trace.WriteLine("Listen ended");
         }
     }
 }

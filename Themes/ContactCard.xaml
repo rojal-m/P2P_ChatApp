@@ -40,8 +40,7 @@
                                 <StackPanel>
                                     <Label Content="{Binding}"
                                    Foreground="Gray"
-                                   FontWeight="SemiBold"
-                                   FontSize="8"
+                                   FontWeight="Medium"
                                    VerticalAlignment="Center"/>
                                 </StackPanel>
                             </StackPanel>

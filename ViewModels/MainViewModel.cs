@@ -30,25 +30,14 @@ namespace P2P_Chat_App.ViewModels
             set { _connection = value; }
         }
 
-        private string _messageToSend;
-        public string MessageToSend
-        {
-            get { return _messageToSend; }
-            set 
-            { 
-                _messageToSend = value;
-                OnPropertyChanged();
-            }
-        }
-
         private ICommand _pushCommand;
-        private ICommand _disconnectCommand;
         public ICommand PushCommand
         {
             get { return _pushCommand; }
             set { _pushCommand = value; }
         }
-        
+
+        private ICommand _disconnectCommand;
         public ICommand DisconnectCommand
         {
             get { return _disconnectCommand; }
@@ -56,13 +45,17 @@ namespace P2P_Chat_App.ViewModels
         }
 
         private ICommand _playSoundCommand;
-
         public ICommand PlaySoundCommand
         {
             get { return _playSoundCommand; }
             set { _playSoundCommand = value; }
         }
-
+        private ICommand _filterHistoryCommand;
+        public ICommand FilterHistoryCommand
+        {
+            get { return _filterHistoryCommand; }
+            set { _filterHistoryCommand = value; }
+        }
         private ICommand _showHistoryCommand;
 
         public ICommand ShowHistoryCommand
@@ -70,6 +63,7 @@ namespace P2P_Chat_App.ViewModels
             get { return _showHistoryCommand; }
             set { _showHistoryCommand = value; }
         }
+        public ICommand OpenPopupCommand { get; set; }
 
         private User _user;
         private User _friend;
@@ -101,14 +95,28 @@ namespace P2P_Chat_App.ViewModels
                 OnPropertyChanged();
             }
         }
+        private string _searchBoxText;
+        public string SearchBoxText
+        {
+            get { return _searchBoxText; }
+            set
+            {
+                _searchBoxText = value;
+                OnPropertyChanged();
+            }
+        }
+        private string _messageToSend;
+        public string MessageToSend
+        {
+            get { return _messageToSend; }
+            set
+            {
+                _messageToSend = value;
+                OnPropertyChanged();
+            }
+        }
         public ObservableCollection<ChatItem> SelectedContactMessages { get; set; }
         public ObservableCollection<string> Contacts { get; set; }
-
-
-        public ICommand OpenPopupCommand { get; set; }
-
-        
-
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -124,7 +132,7 @@ namespace P2P_Chat_App.ViewModels
             }
             if (propertyName == nameof(SelectedItem))
             {
-                showHistory(SelectedItem);
+                //showHistory(SelectedItem);
             }
         }
 
@@ -135,33 +143,38 @@ namespace P2P_Chat_App.ViewModels
             Friend = Connection.Friend;
             SelectedContactMessages = Connection.SelectedContactMessages;
             Contacts = ChatDataBase.UpdateUserList();
-            // SelectedContactMessages.CollectionChanged += ItemsList_CollectionChanged;
             PushCommand = new SendMessageCommand(this);
             DisconnectCommand = new DisconnectCommand(this);
             OpenPopupCommand = new OpenPopupCommand(this);
             PlaySoundCommand = new PlaySoundCommand(this);
-            ShowHistoryCommand = new ShowHistoryCommand(this);  
+            FilterHistoryCommand = new FilterHistoryCommand(this);
+            ShowHistoryCommand = new ShowHistoryCommand(this);
         }
-        /*private void ItemsList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        public void filterHistory()
         {
-            // Collection has been changed, do something here
-            Application app = Application.Current;
-            if (app != null)
+            Contacts.Clear();
+            ObservableCollection<string> temp = ChatDataBase.UpdateUserList();
+            if (temp.Any())
             {
-                MainWindow mainWindow = (MainWindow)app.MainWindow;
-                if (mainWindow != null)
+                string search = SearchBoxText.ToLower();
+                if (search != null)
                 {
-                    object value = mainWindow.CollectionChanged();
+                    var filtered_list = from Element in temp //LINQ 
+                                        where Element.ToLower().Contains(search)//making filter case insensitive
+                                        select Element;
+
+                    foreach (string Element in filtered_list)
+                    {
+                        Contacts.Add(Element);
+                    }
                 }
             }
-
-        }*/
-
+        }
         public void showHistory(string friend)
         {
-            ObservableCollection<ChatItem> Temp = ChatDataBase.GetHistory(friend);
+            ObservableCollection<ChatItem> temp = ChatDataBase.GetHistory(friend);
             SelectedContactMessages.Clear();
-            foreach (ChatItem item in Temp)
+            foreach (ChatItem item in temp)
             {
                 SelectedContactMessages.Add(item);
             }

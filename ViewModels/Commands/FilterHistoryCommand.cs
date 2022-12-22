@@ -7,7 +7,7 @@ using System.Windows.Input;
 
 namespace P2P_Chat_App.ViewModels.Commands
 {
-    internal class ShowHistoryCommand : ICommand
+    internal class FilterHistoryCommand : ICommand
     {
         public event EventHandler? CanExecuteChanged;
         private MainViewModel _parent;
@@ -18,7 +18,7 @@ namespace P2P_Chat_App.ViewModels.Commands
             set { _parent = value; }
         }
 
-        public ShowHistoryCommand(MainViewModel parent)
+        public FilterHistoryCommand(MainViewModel parent)
         {
             this.Parent = parent;
         }
@@ -28,7 +28,8 @@ namespace P2P_Chat_App.ViewModels.Commands
         }
         public void Execute(object? parameter)
         {
-            Parent.showHistory(parameter.ToString());
+            Parent.filterHistory();
         }
+    
     }
 }
