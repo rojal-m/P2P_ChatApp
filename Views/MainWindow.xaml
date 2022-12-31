@@ -175,7 +175,6 @@
                 <!--History main page-->
                 <ListView Grid.Row="2"
                           ItemsSource="{Binding Contacts}"
-                          SelectedItem="{Binding SelectedItem}"
                           Background="Transparent"
                           BorderThickness="0"
                           ItemContainerStyle="{StaticResource ContactCard}"/>

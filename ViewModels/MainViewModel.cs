@@ -13,6 +13,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Markup;
 using System.Windows.Media;
 using P2P_Chat_App.Models;
 using P2P_Chat_App.ViewModels.Commands;
@@ -85,16 +86,6 @@ namespace P2P_Chat_App.ViewModels
                 OnPropertyChanged();
             }
         }
-        private string _selectedItem;
-        public string SelectedItem
-        {
-            get { return _selectedItem; }
-            set
-            {
-                _selectedItem = value;
-                OnPropertyChanged();
-            }
-        }
         private string _searchBoxText;
         public string SearchBoxText
         {
@@ -115,6 +106,16 @@ namespace P2P_Chat_App.ViewModels
                 OnPropertyChanged();
             }
         }
+        private string errorMessage;
+        public string ErrorMessage
+        {
+            get { return errorMessage; }
+            set
+            {
+                errorMessage = value;
+                OnPropertyChanged();
+            }
+        }
         public ObservableCollection<ChatItem> SelectedContactMessages { get; set; }
         public ObservableCollection<string> Contacts { get; set; }
 
@@ -130,15 +131,31 @@ namespace P2P_Chat_App.ViewModels
             {
                 Connection.Friend = Friend;
             }
-            if (propertyName == nameof(SelectedItem))
+            if (propertyName == nameof(ErrorMessage))
             {
-                //showHistory(SelectedItem);
+                if(ErrorMessage != null)
+                {
+                    MessageBox.Show(ErrorMessage);
+                    ClearErrorMessage();
+                }
             }
         }
-
+        public void ClearErrorMessage()
+        {
+            ErrorMessage = null;
+            Connection.ErrorMessage = null;
+        }
+        private void Model_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(Connection.ErrorMessage))
+            {
+                ErrorMessage = Connection.ErrorMessage;
+            }
+        }
         public MainViewModel(ConnectionHandler connectionHandler)
         {
             Connection = connectionHandler;
+            Connection.PropertyChanged += Model_PropertyChanged;
             User = Connection.User;
             Friend = Connection.Friend;
             SelectedContactMessages = Connection.SelectedContactMessages;
@@ -152,13 +169,14 @@ namespace P2P_Chat_App.ViewModels
         }
         public void filterHistory()
         {
-            Contacts.Clear();
+            
             ObservableCollection<string> temp = ChatDataBase.UpdateUserList();
             if (temp.Any())
             {
-                string search = SearchBoxText.ToLower();
-                if (search != null)
+                if (SearchBoxText != null)
                 {
+                    Contacts.Clear();
+                    string search = SearchBoxText.ToLower();
                     var filtered_list = from Element in temp //LINQ 
                                         where Element.ToLower().Contains(search)//making filter case insensitive
                                         select Element;
@@ -206,22 +224,20 @@ namespace P2P_Chat_App.ViewModels
         {
             Connection.End();
         }
-
         internal void PlaySound()
         {
-            /*if (_mediaPlayer == null)
-            {
-                _mediaPlayer = new MediaPlayer();
-                _mediaPlayer.MediaFailed += (o, args) =>
-                {
-                    //here you can get hint of what causes the failure 
-                    //from method parameter args 
-                    Trace.WriteLine(args);
-                };
-            }
-            _mediaPlayer.Open(new Uri(@"../../../Assets/sound.wav", UriKind.Relative));
-            _mediaPlayer.Play();*/
             Connection.Beeping();
+        }
+        public static bool AcceptRequestBox(string connectingFriendname)
+        {
+            if (MessageBox.Show("Connection request from: " + connectingFriendname + " \nAccept the request?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
     }
 }

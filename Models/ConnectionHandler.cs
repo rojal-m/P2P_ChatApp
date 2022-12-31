@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Data.SQLite;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.IO;
@@ -19,6 +20,7 @@ using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using static P2P_Chat_App.ViewModels.MainViewModel;
 
 namespace P2P_Chat_App.Models
 {
@@ -62,6 +64,25 @@ namespace P2P_Chat_App.Models
         }
         public ObservableCollection<ChatItem> SelectedContactMessages { get; set; }
 
+        private string _errorMessage;
+
+        public string ErrorMessage
+        {
+            get { return _errorMessage; }
+            set
+            {
+                _errorMessage = value;
+                OnDataChanged();
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void OnDataChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
 
         public ConnectionHandler()
         {
@@ -73,19 +94,12 @@ namespace P2P_Chat_App.Models
         //---------------------------------------------------------Calls From ViewModel---------------------------------------------------------
         public int Relisten()
         {
-            if (ReListenBox()) // if not accepted connection
-            {
-                keepListening = false;
-                listenConnected.Set();
-                listningFinish.WaitOne();
-                listen.Close();
-                Listen();
-                return 1;
-            }
-            else
-            {
-                return 0;
-            }
+            keepListening = false;
+            listenConnected.Set();
+            listningFinish.WaitOne();
+            listen.Close();
+            Listen();
+            return 1;
         }
         public int Connect()
         {
@@ -93,12 +107,12 @@ namespace P2P_Chat_App.Models
             {
                 if (Friend.IP == User.IP && Friend.Port == User.Port)
                 {
-                    MessageBox.Show("Connecting to yourself");
+                    ErrorMessage = "Connecting to yourself";
                     return 0;
                 }
                 else if (connectionAccepted)
                 {
-                    MessageBox.Show("Already connected");
+                    ErrorMessage = "Already connected";
                     return 0;
                 }
                 connect = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -109,27 +123,27 @@ namespace P2P_Chat_App.Models
             }
             catch (SocketException sex)
             {
-                MessageBox.Show("There was a problem connecting" + sex);
+                ErrorMessage = "There was a problem connecting";
                 return 0;
             }
             catch (FormatException fex)
             {
-                MessageBox.Show("Invalid IP or PORT number");
+                ErrorMessage = "Invalid IP or PORT number";
                 return 0;
             }
             catch (ArgumentOutOfRangeException range)
             {
-                MessageBox.Show("Invalid IP or PORT number");
+                ErrorMessage = "Invalid IP or PORT number";
                 return 0;
             }
             catch (OverflowException oex)
             {
-                MessageBox.Show("Invalid IP or PORT number");
+                ErrorMessage = "Invalid IP or PORT number";
                 return 0;
             }
             catch (ObjectDisposedException ox)
             {
-                MessageBox.Show("Cannot connect again. Restart.");
+                ErrorMessage = "Cannot connect again. Restart.";
                 return 0;
             }
         }
@@ -147,13 +161,17 @@ namespace P2P_Chat_App.Models
                 }
                 else
                 {
-                    MessageBox.Show("Not connected to anyone.");
+                    ErrorMessage = "Not connected to anyone.";
                 }
             }
             catch (SocketException sex)
             {
                 connectionAccepted = false;
-                MessageBox.Show("Couldn't disconnect.");
+                ErrorMessage = "Couldn't disconnect.";
+            }
+            catch (SQLiteException se)
+            {
+                ErrorMessage = ("An error occured With the database");
             }
         }
         public void sendMessage(string message)
@@ -173,13 +191,17 @@ namespace P2P_Chat_App.Models
                 }
                 else
                 {
-                    MessageBox.Show("Not connected to anyone.");
+                    ErrorMessage = "Not connected to anyone.";
                 }
             }
             catch (SocketException sex)
             {
                 connectionAccepted = false;
-                MessageBox.Show("Message not sent.");
+                ErrorMessage = "Message not sent.";
+            }
+            catch (SQLiteException se)
+            {
+                ErrorMessage = ("An error occured With the database");
             }
         }
         public void Beeping()
@@ -197,13 +219,17 @@ namespace P2P_Chat_App.Models
                 }
                 else
                 {
-                    MessageBox.Show("Not connected to anyone.");
+                    ErrorMessage = "Not connected to anyone.";
                 }
             }
             catch (SocketException sex)
             {
                 connectionAccepted = false;
-                MessageBox.Show("Message not sent.");
+                ErrorMessage = "Message not sent.";
+            }
+            catch (SQLiteException se)
+            {
+                ErrorMessage = ("An error occured With the database");
             }
         }
         public void End()
@@ -255,24 +281,24 @@ namespace P2P_Chat_App.Models
             }
             catch (SocketException sex)
             {
-                MessageBox.Show("An error occured while trying to listen, try another port number"+ sex);
+                ErrorMessage = "An error occured while trying to listen, try another port number";
                 return 0;
             }
 
             catch (FormatException fex)
             {
-                MessageBox.Show("Invalid IP or PORT number");
+                ErrorMessage = "Invalid IP or PORT number";
                 return 0;
             }
             catch (ArgumentOutOfRangeException range)
             {
-                MessageBox.Show("Invalid IP or PORT number");
+                ErrorMessage = "Invalid IP or PORT number";
                 return 0;
             }
 
             catch (OverflowException oex)
             {
-                MessageBox.Show("Invalid IP or PORT number");
+                ErrorMessage = "Invalid IP or PORT number";
                 return 0;
             }
         }
@@ -327,11 +353,15 @@ namespace P2P_Chat_App.Models
             catch (SocketException se)
             {
                 connectionAccepted = false;
-                MessageBox.Show(User.Name + "> Connection broken.L");
+                ErrorMessage = User.Name + "> Connection broken.";
 
             }
             catch (ObjectDisposedException ox) {
                 Trace.WriteLine(User.Name + "> Listning socket closed");
+            }
+            catch (SQLiteException se)
+            {
+                ErrorMessage = ("An error occured With the database");
             }
         }
         private void ConnectCallback(IAsyncResult ar)
@@ -349,7 +379,7 @@ namespace P2P_Chat_App.Models
                 {
                     if (response.Type == "connectionDeclined")
                     {
-                        MessageBox.Show(User.Name + ": Connection declined by " + response.Username);
+                        ErrorMessage = User.Name + ": Connection declined by " + response.Username;
                         connectionAccepted = false;
                     }
                     else
@@ -379,14 +409,18 @@ namespace P2P_Chat_App.Models
                 if (connectionAccepted)
                 {
                     connectionAccepted = false;
-                    MessageBox.Show(User.Name + "> Connection broken.");
+                    ErrorMessage = User.Name + "> Connection broken.";
                     //p2p.MainWindow.AppWindow.ConnectionBroken();
                 }
                 else
                 {
                     //p2p.MainWindow.AppWindow.DisconnectCallback();
-                    MessageBox.Show(User.Name + "> Device refuse to connect.");
+                    ErrorMessage = User.Name + "> Device refuse to connect.";
                 }
+            }
+            catch (SQLiteException se)
+            {
+                ErrorMessage = ("An error occured With the database");
             }
         }
         private void connected(Socket handler, string data)
@@ -516,29 +550,6 @@ namespace P2P_Chat_App.Models
                 _mediaPlayer.Open(new Uri(@"../../../Assets/sound.wav", UriKind.Relative));
                 _mediaPlayer.Play();
             });
-        }
-        //---------------------------------------------------------CMessageBox With Questions---------------------------------------------------------      
-        private bool AcceptRequestBox(string connectingFriendname)
-        {
-            if (MessageBox.Show("Connection request from: " + connectingFriendname + " \nAccept the request?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
-        private bool ReListenBox()
-        {
-            if (MessageBox.Show("Do you want to re Listen?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
+        } 
     }
 }

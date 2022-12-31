@@ -67,15 +67,25 @@ namespace P2P_Chat_App.ViewModels
 
         public void Listen()
         {
-            _parent.User = User;
-            // Perform Listen action
-            _parent.listen();
-            // Get the current window
-            Window window = Application.Current.Windows.OfType<Window>().SingleOrDefault(x => x.IsActive);
-            if (window != null)
+            if (_parent.User.Port != User.Port)
             {
-                // Close the window
-                window.Close();
+                if (ReListenBox()) // if not accepted connection
+                {
+                    _parent.User = User;
+                    // Perform Listen action
+                    _parent.listen();
+                }
+                // Get the current window
+                Window window = Application.Current.Windows.OfType<Window>().SingleOrDefault(x => x.IsActive);
+                if (window != null)
+                {
+                    // Close the window
+                    window.Close();
+                }
+            }
+            else
+            {
+                _parent.ErrorMessage = "Lstening in the same port.";
             }
         }
 
@@ -91,6 +101,17 @@ namespace P2P_Chat_App.ViewModels
             {
                 // Close the window
                 window.Close();
+            }
+        }
+        private bool ReListenBox()
+        {
+            if (MessageBox.Show("Do you want to re Listen?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
             }
         }
     }

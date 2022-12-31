@@ -34,7 +34,7 @@ namespace P2P_Chat_App.Models
             }
             catch (SQLiteException se)
             {
-                MessageBox.Show("An error occured while connecting to the database");
+                throw se;
             }
             conn.Close();
         }
@@ -49,7 +49,7 @@ namespace P2P_Chat_App.Models
             }
             catch (SQLiteException se)
             {
-                MessageBox.Show("An error occured while connecting to the database");
+                throw se;
             }
             conn.Close();
         }
@@ -69,7 +69,7 @@ namespace P2P_Chat_App.Models
             }
             catch (SQLiteException se)
             {
-                MessageBox.Show("An error occured while writing to the DB");
+                throw se;
             }
             conn.Close();
         }
